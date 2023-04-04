@@ -35,7 +35,7 @@ namespace board {
     public:
         square4 blocks_array = {0};
         vec_ar2 *zero_points;
-        bool is_moved;
+        bool is_moved = false;
 
         Board();
         vec_ar2 *every_zero_index(bool init);

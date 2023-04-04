@@ -119,8 +119,8 @@ board::reshape_array *board::reshape(square4 array, int dim) {
 }
 
 void board::merge(reshape_array *slices, bool forward) {
-    /* forward: down right
-        backward: up left*/
+    /* forward: down & right
+        backward: up & left*/
     int score = 0;
     if (forward) {
         for (int i = 0; i < 4; ++i) {
@@ -199,6 +199,7 @@ int board::Board::right() {
     int score = reshaped->score;
     this->cover(reshaped);
     this->is_moved = reshaped->is_moved;
+    this->add_new_num();
     delete reshaped;
     reshaped = nullptr;
     return score;
@@ -210,6 +211,7 @@ int board::Board::down() {
     int score = reshaped->score;
     this->cover(reshaped);
     this->is_moved = reshaped->is_moved;
+    this->add_new_num();
     delete reshaped;
     reshaped = nullptr;
     return score;
@@ -221,6 +223,7 @@ int board::Board::left() {
     int score = reshaped->score;
     this->cover(reshaped);
     this->is_moved = reshaped->is_moved;
+    this->add_new_num();
     delete reshaped;
     reshaped = nullptr;
     return score;
@@ -232,6 +235,7 @@ int board::Board::up() {
     int score = reshaped->score;
     this->cover(reshaped);
     this->is_moved = reshaped->is_moved;
+    this->add_new_num();
     delete reshaped;
     reshaped = nullptr;
     return score;
@@ -256,8 +260,6 @@ void board::Board::cover(reshape_array *slices) {
                 this->blocks_array[j][i] = slices->array[i][j];
             }
         }
-        this->add_new_num();
-//        this->blocks_array[0][0] = 1;
     }
     else if (dim == 1) {
         for (int i = 0; i < 4; ++i) {
@@ -265,8 +267,6 @@ void board::Board::cover(reshape_array *slices) {
                 this->blocks_array[i][j] = slices->array[i][j];
             }
         }
-        this->add_new_num();
-//        this->blocks_array[0][0] = 1;
     }
     else {
         throw "Dim wrong!";
@@ -307,19 +307,25 @@ bool board::Board::is_end() {
         for (int i = 0; i < 4; ++i) {
             for (int j = 1; j < 4; ++j) {
                 if (this->blocks_array[i][j] == this->blocks_array[i][j-1]) {
-                    return true;
+                    return false;
                 }
             }
         }
         for (int i = 0; i < 4; ++i) {
             for (int j = 1; j < 4; ++j) {
                 if (this->blocks_array[j][i] == this->blocks_array[j-1][i]) {
-                    return true;
+                    return false;
                 }
             }
         }
+        return true;
     }
     return false;
 }
+
+
+
+
+
 
 

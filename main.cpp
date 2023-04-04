@@ -1,8 +1,4 @@
-#include <cstdio>
-#include <iostream>
 #include <QApplication>
-#include <QPushButton>
-#include "Board.h"
 #include "Game.h"
 
 

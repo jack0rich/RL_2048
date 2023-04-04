@@ -20,7 +20,7 @@ namespace game {
 
         this->core = new board::Board();
 
-        QString path = "./Content/SmileySans-Oblique.ttf";
+        QString path = "/Users/jackrich/CLionProjects/RL_2048/Content/SmileySans-Oblique.ttf";
         int fontId= QFontDatabase::addApplicationFont(path);
         std::cout << fontId;
         QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
@@ -61,17 +61,8 @@ namespace game {
             }
         }
 
-//        QLayoutItem *item = gameAreaLayout->itemAtPosition(1, 2);
-//        if (item != nullptr) {
-//            QLabel *label = qobject_cast<QLabel *>(item->widget());
-//            if (label != nullptr) {
-//                label->setText("This is label (1, 2)");
-//                label->setFont(*font);
-//                label->setStyleSheet("background-color: gray;");
-//            }
-//        }
         this->resetGame();
-        this->core->display();
+//        this->core->display();
 
         layout->addLayout(gameAreaLayout, 2, 0, 1, 4);
 
