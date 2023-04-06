@@ -46,6 +46,11 @@ namespace game {
         void clearBoard();
         void loadBoard();
         void isGameOver();
+        int right();
+        int left();
+        int up();
+        int down();
+
 
 
     signals:

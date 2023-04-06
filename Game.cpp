@@ -20,9 +20,8 @@ namespace game {
 
         this->core = new board::Board();
 
-        QString path = "/Users/jackrich/CLionProjects/RL_2048/Content/SmileySans-Oblique.ttf";
+        QString path = "./Content/SmileySans-Oblique.ttf";
         int fontId= QFontDatabase::addApplicationFont(path);
-        std::cout << fontId;
         QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
         font = new QFont(fontFamily, 32);
 
@@ -62,7 +61,6 @@ namespace game {
         }
 
         this->resetGame();
-//        this->core->display();
 
         layout->addLayout(gameAreaLayout, 2, 0, 1, 4);
 
@@ -87,28 +85,16 @@ namespace game {
 
     void Game::keyPressEvent(QKeyEvent *event) {
         if (event->key() == Qt::Key_Up || event->key() == Qt::Key_W) {
-            this->clearBoard();
-            score += core->up();
-            this->loadBoard();
-            this->isGameOver();
+            up();
 
         } else if (event->key() == Qt::Key_Down || event->key() == Qt::Key_S) {
-            this->clearBoard();
-            score += core->down();
-            this->loadBoard();
-            this->isGameOver();
+            down();
 
         } else if (event->key() == Qt::Key_Left || event->key() == Qt::Key_A) {
-            this->clearBoard();
-            score += core->left();
-            this->loadBoard();
-            this->isGameOver();
+            left();
 
         } else if (event->key() == Qt::Key_Right || event->key() == Qt::Key_D) {
-            this->clearBoard();
-            score += core->right();
-            this->loadBoard();
-            this->isGameOver();
+            right();
 
         } else {
             QWidget::keyPressEvent(event);
@@ -178,6 +164,42 @@ namespace game {
                 qApp->exit();
             }
         }
+    }
+
+    int Game::right() {
+        this->clearBoard();
+        int s_temp = core->right();
+        score += s_temp;
+        this->loadBoard();
+        this->isGameOver();
+        return s_temp;
+    }
+
+    int Game::left() {
+        this->clearBoard();
+        int s_temp = core->left();
+        score += s_temp;
+        this->loadBoard();
+        this->isGameOver();
+        return s_temp;
+    }
+
+    int Game::up() {
+        this->clearBoard();
+        int s_temp = core->up();
+        score += s_temp;
+        this->loadBoard();
+        this->isGameOver();
+        return s_temp;
+    }
+
+    int Game::down() {
+        this->clearBoard();
+        int s_temp = core->down();
+        score += s_temp;
+        this->loadBoard();
+        this->isGameOver();
+        return s_temp;
     }
 
 } // game
