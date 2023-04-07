@@ -3,19 +3,32 @@
 //
 
 #include "Server.h"
+#include "Board.h"
 #include <iostream>
 #include <sys/socket.h>
 #include<arpa/inet.h>
 #include <unistd.h>
 #include <strings.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+
 
 void errif(bool condition, const char *errmsg) {
     if (condition) {
         perror(errmsg);
         exit(EXIT_FAILURE);
     }
+}
+
+std::string square4ToString(board::square4 data) {
+    std::string str;
+    for (const auto& row : data) {
+        for (const auto& elem : row) {
+            str += std::to_string(elem) + ",";
+        }
+        str += "|"; // 每一行结束后，添加一个换行符
+    }
+    return str;
 }
 
 
@@ -36,11 +49,12 @@ Server::Server() {
     bzero(&clnt_addr, sizeof(clnt_addr));
 }
 
-void Server::start(Functype right, Functype left, Functype up, Functype down) {
+void Server::start(Functype right, Functype left, Functype up, Functype down, board::Board *core) {
     int clnt_sockfd = accept(sockfd, (sockaddr*)&clnt_addr, &clnt_addr_len);
     errif(clnt_sockfd == -1, "socket accept error");
     std::cout << "new client fd " << clnt_sockfd  << "! IP: " << inet_ntoa(clnt_addr.sin_addr)  <<
     " Port: " << ntohs(clnt_addr.sin_port) << std::endl;
+    this->isShakeWithPy = true;
 
     while (true) {
         char buf[1024];  // 定义缓冲区
@@ -48,7 +62,20 @@ void Server::start(Functype right, Functype left, Functype up, Functype down) {
         ssize_t read_bytes = read(clnt_sockfd, buf, sizeof(buf));  // 从客户端socket读到缓冲区，返回已读数据大小
         if (read_bytes > 0) {
             ::printf("message from client fd %d: %s\n", clnt_sockfd, buf);
-            write(clnt_sockfd, buf, sizeof(buf));  // 将相同的数据写到客户端
+//            write(clnt_sockfd, buf, sizeof(buf));  // 将相同的数据写到客户端
+        std::string py_cmd(buf);
+            if (py_cmd == "right") {
+                action(right, clnt_sockfd, core);
+            }
+            else if (py_cmd == "left") {
+                action(left, clnt_sockfd, core);
+            }
+            else if (py_cmd == "up") {
+                action(up, clnt_sockfd, core);
+            }
+            else if (py_cmd == "down") {
+                action(down, clnt_sockfd, core);
+            }
         }
         else if (read_bytes == 0) {  // read返回0，表示EOF
             ::printf("client fd %d disconnected\n", clnt_sockfd);
@@ -64,8 +91,15 @@ void Server::start(Functype right, Functype left, Functype up, Functype down) {
     close(sockfd);
 }
 
-void Server::action(Functype motion) {
-    return;
+void Server::action(Functype motion, int clnt_sockfd, board::Board *core) {
+    int score = motion();
+    board::square4 data = core->blocks_array;
+    std::string str = std::to_string(score);
+    std::string array_str = square4ToString(data);
+    str = array_str + str;
+    char *str_ptr = str.data();
+    size_t str_size = str.size();
+    write(clnt_sockfd, str_ptr, str_size);
 }
 
 

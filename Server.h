@@ -8,8 +8,9 @@
 #include <sys/socket.h>
 #include<arpa/inet.h>
 #include <unistd.h>
+#include "Board.h"
 
-typedef void (*Functype)();
+typedef int (*Functype)();
 
 class Server {
 private:
@@ -18,9 +19,10 @@ private:
     socklen_t clnt_addr_len;
 
 public:
+    bool isShakeWithPy = false;
     Server();
-    void start(Functype right, Functype left, Functype up, Functype down);
-    void action(Functype motion);
+    void start(Functype right, Functype left, Functype up, Functype down, board::Board *core);
+    void action(Functype motion, int clnt_sockfd, board::Board *core);
 
 
 };

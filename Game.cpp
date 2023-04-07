@@ -19,6 +19,7 @@ namespace game {
             QWidget(parent) {
 
         this->core = new board::Board();
+        this->gameServer = new Server();
 
         QString path = "./Content/SmileySans-Oblique.ttf";
         int fontId= QFontDatabase::addApplicationFont(path);
@@ -201,5 +202,6 @@ namespace game {
         this->isGameOver();
         return s_temp;
     }
+
 
 } // game

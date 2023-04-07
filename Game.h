@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <map>
 #include "Board.h"
+#include "Server.h"
 
 
 class QPushButton;
@@ -41,6 +42,7 @@ namespace game {
                 {13, "#3C3A32"},{14, "#3C3A32"},{15, "#3C3A32"},{16, "#3C3A32"},
                 {17, "#3C3A32"},{18, "#3C3A32"},{19, "#3C3A32"},{20, "#3C3A32"},
         };
+        Server *gameServer;
 
         void resetGame();
         void clearBoard();
