@@ -11,19 +11,16 @@
 #include "Board.h"
 
 typedef int (*Functype)();
+void errif(bool condition, const char *errmsg);
+std::string square4ToString(board::square4 data);
 
 class Server {
-private:
+public:
     int sockfd;
     struct sockaddr_in serv_addr, clnt_addr;
     socklen_t clnt_addr_len;
-
-public:
     bool isShakeWithPy = false;
     Server();
-    void start(Functype right, Functype left, Functype up, Functype down, board::Board *core);
-    void action(Functype motion, int clnt_sockfd, board::Board *core);
-
 
 };
 

@@ -3,6 +3,7 @@
 //
 
 #include "Game.h"
+#include "Server.h"
 #include <iostream>
 #include <QPushButton>
 #include <QApplication>
@@ -12,6 +13,12 @@
 #include <QFontDatabase>
 #include <cmath>
 #include <QMessageBox>
+#include <sys/socket.h>
+#include<arpa/inet.h>
+#include <unistd.h>
+#include <strings.h>
+#include <cstdio>
+
 
 
 namespace game {
@@ -49,6 +56,14 @@ namespace game {
         m_button->setPalette(palette);
         layout->addWidget(this->m_button, 1, 3);
 
+        this->connectPy = new QPushButton(tr("SHAKE"), this);
+        connectPy->setFont(*font);
+        QPalette c_palette = connectPy->palette();
+        c_palette.setColor(QPalette::Button, QColor(153, 153, 255));
+        c_palette.setColor(QPalette::ButtonText, QColor(0, 0, 102));
+        connectPy->setPalette(c_palette);
+        layout->addWidget(this->connectPy, 1, 2);
+
         // 创建一个游戏区域，使用网格布局
         this->gameAreaLayout = new QGridLayout();
         for (int row = 0; row < 4; ++row) {
@@ -69,8 +84,11 @@ namespace game {
         setLayout(layout);
 
         m_button->setCheckable(true);
-
         connect(m_button, SIGNAL (clicked(bool)), this, SLOT (slotButtonClicked(bool)));
+
+        connectPy->setCheckable(true);
+        connect(connectPy, SIGNAL (clicked(bool)), this, SLOT(shakeWithPy()));
+
     }
 
     void Game::slotButtonClicked(bool checked) {
@@ -203,5 +221,65 @@ namespace game {
         return s_temp;
     }
 
+    void Game::shakeWithPy() {
+        if (connectPy->isChecked()) {
+            start();
+        }
+    }
 
+    void Game::start() {
+        int clnt_sockfd = accept(gameServer->sockfd, (sockaddr*)&gameServer->clnt_addr, &gameServer->clnt_addr_len);
+        errif(clnt_sockfd == -1, "socket accept error");
+        std::cout << "new client fd " << clnt_sockfd  << "! IP: " << inet_ntoa(gameServer->clnt_addr.sin_addr)  <<
+                  " Port: " << ntohs(gameServer->clnt_addr.sin_port) << std::endl;
+        gameServer->isShakeWithPy = true;
+
+        while (true) {
+            char buf[1024];  // 定义缓冲区
+            bzero(&buf, sizeof(buf));  // 清空缓冲区
+            ssize_t read_bytes = read(clnt_sockfd, buf, sizeof(buf));  // 从客户端socket读到缓冲区，返回已读数据大小
+            if (read_bytes > 0) {
+                ::printf("message from client fd %d: %s\n", clnt_sockfd, buf);
+//            write(clnt_sockfd, buf, sizeof(buf));  // 将相同的数据写到客户端
+                std::string py_cmd(buf);
+                if (py_cmd == "right") {
+                    int score = right();
+                    action(score, clnt_sockfd);
+                }
+                else if (py_cmd == "left") {
+                    int score = left();
+                    action(score, clnt_sockfd);
+                }
+                else if (py_cmd == "up") {
+                    int score = up();
+                    action(score, clnt_sockfd);
+                }
+                else if (py_cmd == "down") {
+                    int score = down();
+                    action(score, clnt_sockfd);
+                }
+            }
+            else if (read_bytes == 0) {  // read返回0，表示EOF
+                ::printf("client fd %d disconnected\n", clnt_sockfd);
+                ::close(clnt_sockfd);
+                break;
+            }
+            else if (read_bytes == -1) {  // read返回-1，表示发生错误，按照上文方法进行错误处理
+                ::close(clnt_sockfd);
+                errif(true, "socket read error");
+                break;
+            }
+        }
+        ::close(gameServer->sockfd);
+    }
+
+    void Game::action(int score, int clnt_sockfd) {
+        board::square4 data = core->blocks_array;
+        std::string str = std::to_string(score);
+        std::string array_str = square4ToString(data);
+        str = array_str + str;
+        char *str_ptr = str.data();
+        size_t str_size = str.size();
+        write(clnt_sockfd, str_ptr, str_size);
+    }
 } // game

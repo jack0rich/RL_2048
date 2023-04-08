@@ -27,9 +27,14 @@ namespace game {
     public:
         explicit Game(QWidget *parent = 0);
         void keyPressEvent(QKeyEvent *event) override;
+        int right();
+        int left();
+        int up();
+        int down();
     private:
         int score = 0;
         QPushButton *m_button;
+        QPushButton *connectPy;
         QGridLayout *gameAreaLayout;
         QLabel *scoreLabel;
         QGridLayout *layout;
@@ -48,10 +53,9 @@ namespace game {
         void clearBoard();
         void loadBoard();
         void isGameOver();
-        int right();
-        int left();
-        int up();
-        int down();
+
+        void start();
+        void action(int score, int clnt_sockfd);
 
 
 
@@ -59,6 +63,7 @@ namespace game {
     public slots:
         void slotButtonClicked(bool checked);
         void updateScore();
+        void shakeWithPy();
     };
 
 } // game
